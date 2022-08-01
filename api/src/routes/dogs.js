@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { getDogsApi, getAllDogs } = require('../functions/functions.js');
+const {getAllDogs } = require('../functions/functions.js');
 const {Race} = require('../db')
 
 
@@ -52,17 +52,22 @@ routerDogs.get('/:idRace', async (req, res) => {
 })
 
 routerDogs.post('/', async(req, res) => {
-    let {name, height, weight, life_span} = req.body
-    if(!name || !height || !weight) return res.status(404).json({err: 'Faltan datos'})
-    let newDog = await Race.findOrCreate({
-        where: {
-            name,
-            height,
-            weight,
-            life_span
-        }
-    })
-    res.json(newDog)
+    try {
+        let {name, height, weight, life_span} = req.body
+        if(!name || !height || !weight) return res.status(404).json({err: 'Faltan datos'})
+        const [newDog, created] = await Race.findOrCreate({
+            where: {
+                name,
+                height,
+                weight,
+                life_span
+            }
+        })
+        if(created) return res.json(newDog)
+        throw new Error('La raza ya existe')
+    } catch (error) {
+        res.status(404).json({err: error.message})
+    }
 })
 
 module.exports = routerDogs;

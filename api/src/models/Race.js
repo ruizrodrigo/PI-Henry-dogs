@@ -24,11 +24,11 @@ module.exports = (sequelize) => {
     },
     life_span: {
       type: DataTypes.STRING,
-      default: undefined
+      default: undefined,
     },
     createdInDB: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      defaultValue: true,
     }
   }, {
     timestamps: false,

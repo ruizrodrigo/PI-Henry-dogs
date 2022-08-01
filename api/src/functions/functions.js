@@ -1,8 +1,7 @@
 const axios = require('axios')
-const {Race} = require('../db')
+const {Race, Temperament} = require('../db')
 
 const {API_KEY} = process.env
-
 
 const getDogsApi = async () => {
     try {
@@ -23,7 +22,6 @@ const getDogsApi = async () => {
         console.log(error.message)
     }
 }
-
 const getDogsDB = async () => {
         const dogs = await Race.findAll()
         return dogs
@@ -34,9 +32,37 @@ const getAllDogs = async () => {
 
    return [...dogsApi, ...dogsDB]
 }
+const getTempsApi = async () => {
+    try {
+        const tempsApi = await axios.get(`https://api.thedogapi.com/v1/breeds?api_key=${API_KEY}`).then(res => res.data)
+
+        if(tempsApi) {
+            let temps = []
+            tempsApi.map(temp => {
+                if(temp.temperament) {
+                    let arrayTemp = temp.temperament.split(', ')
+                    arrayTemp.forEach(a => {
+                        temps.push({name: a})
+                     })
+                    }
+                })
+            let apiTemps = [...new Set(temps)]
+            
+            let dbTemps = await Temperament.bulkCreate(apiTemps, {returning: true})
+            return dbTemps
+        } else {
+            throw new Error('No se pudo obtener datos de la API')
+        }
+        
+    } catch (error) {
+        console.log(error)
+    }
+
+}
 
 module.exports = {
     getDogsApi,
     getDogsDB,
-    getAllDogs
+    getAllDogs,
+    getTempsApi,
 }
