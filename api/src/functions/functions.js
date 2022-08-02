@@ -42,11 +42,13 @@ const getTempsApi = async () => {
                 if(temp.temperament) {
                     let arrayTemp = temp.temperament.split(', ')
                     arrayTemp.forEach(a => {
-                        temps.push({name: a})
+                        temps.push(a)
                      })
                     }
                 })
-            let apiTemps = [...new Set(temps)]
+            let filteredArray = [...new Set(temps)]
+            apiTemps = []
+            filteredArray.forEach(t => apiTemps.push({name: t}))
             
             let dbTemps = await Temperament.bulkCreate(apiTemps, {returning: true})
             return dbTemps
