@@ -1,5 +1,5 @@
 const axios = require('axios')
-const {Race, Temperament} = require('../db')
+const {Dog, Temperament} = require('../db')
 
 const {API_KEY} = process.env
 
@@ -11,6 +11,7 @@ const getDogsApi = async () => {
             dogs.push({
                 id: dog.id,
                 name: dog.name,
+                image: dog.image.url,
                 weight: dog.weight,
                 height: dog.height,
                 life_span: dog.life_span,
@@ -23,7 +24,7 @@ const getDogsApi = async () => {
     }
 }
 const getDogsDB = async () => {
-        const dogs = await Race.findAll()
+        const dogs = await Dog.findAll()
         return dogs
 }
 const getAllDogs = async () => {

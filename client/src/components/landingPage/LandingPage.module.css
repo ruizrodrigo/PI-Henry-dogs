@@ -1,0 +1,26 @@
+
+.buttonHome {
+    width: 100px;
+    height: 50px;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.buttonDiv {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url(../../img/fondoPerros.jpg);
+    background-size: cover;
+}
+.mainDiv {
+    width: 1535px;
+    height: 749px;    
+}

@@ -1,0 +1,11 @@
+.dogCards {
+    display: grid;
+    grid-template-columns: 300px 300px 300px 300px;
+    justify-content: space-evenly;
+    align-self: auto;
+    width: 80%;
+}
+
+.mainDiv {
+    text-align: -webkit-center;
+}

@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const {getAllDogs } = require('../functions/functions.js');
-const {Race} = require('../db')
+const {Dog} = require('../db')
 
 
 // Importar todos los routers;
@@ -38,6 +38,7 @@ routerDogs.get('/:idRace', async (req, res) => {
             res.json({
                 id: findedDog.id,
                 name: findedDog.name,
+                imageUrl: findedDog.image,
                 weight: findedDog.weight,
                 height: findedDog.height,
                 life_span: findedDog.life_span,

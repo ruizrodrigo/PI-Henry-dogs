@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const routerDogs = require('./routes/dogs.js');
 const routerTemps = require('./routes/temps.js');
@@ -9,6 +10,7 @@ require('./db.js');
 
 const server = express();
 
+server.use(cors());
 server.name = 'API';
 
 server.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
