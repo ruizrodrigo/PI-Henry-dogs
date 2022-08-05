@@ -3,8 +3,10 @@ export const GET_DOG = 'GET_DOG';
 export const CREATE_DOG = 'CREATE_DOG';
 export const GET_ALL_TEMPS = 'GET_ALL_TEMPS'
 
-export const getAllDogs = () => dispatch => {
-    return fetch('http://localhost:3001/dogs')
+export const getAllDogs = (name) => dispatch => {
+    const url = name ? `http://localhost:3001/dogs${name}` :
+    `http://localhost:3001/dogs`
+    return fetch(url)
     .then(res => res.json())
     .then(data => {
         dispatch({type: GET_ALL_DOGS, payload: data})
