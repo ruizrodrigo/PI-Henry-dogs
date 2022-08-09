@@ -21,7 +21,7 @@ routerDogs.get('/', async (req, res) => {
         } else {
             const getDogs = await getAllDogs()
             let findedDog = getDogs.filter(dog => dog.name.toLowerCase().includes(name.toLowerCase()))
-            findedDog ? res.json(findedDog) : res.status(404).json({err: 'No se encontro la raza solicitada'})
+            findedDog.length ? res.json(findedDog) : res.status(404).json({err: 'No se encontro la raza solicitada'})
         }
     } catch (error) {
         res.status(404).json({err: error.message})

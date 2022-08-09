@@ -1,12 +1,11 @@
 import {React} from "react";
+import { Link } from "react-router-dom";
 
-const NavBar = (props) => {
+const NavBar = () => {
     return (
         <div>
-            <button>Filtrar por raza</button>
-            <button>Filtrar por temperamento</button>
-            <button>Orden alfabetico</button>
-            <button>Orden por Peso</button>
+            <Link to='/dogs'>Home</Link>
+            <Link to='/create'>Create</Link>
         </div>
     )
 }

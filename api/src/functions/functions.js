@@ -35,8 +35,14 @@ const getAllDogs = async () => {
 }
 const getTempsApi = async () => {
     try {
-        const tempsApi = await axios.get(`https://api.thedogapi.com/v1/breeds?api_key=${API_KEY}`).then(res => res.data)
+        const availableTemps = await Temperament.findAll({
+            order: [
+                ['name', 'ASC']
+            ]})
+        if(availableTemps.length) return availableTemps
 
+        const tempsApi = await axios.get(`https://api.thedogapi.com/v1/breeds?api_key=${API_KEY}`)
+        .then(res => res.data)
         if(tempsApi) {
             let temps = []
             tempsApi.map(temp => {
@@ -51,7 +57,12 @@ const getTempsApi = async () => {
             apiTemps = []
             filteredArray.forEach(t => apiTemps.push({name: t}))
             
-            let dbTemps = await Temperament.bulkCreate(apiTemps, {returning: true})
+            await Temperament.bulkCreate(apiTemps)
+            let dbTemps = await Temperament.findAll(
+                {order: [
+                    ['name', 'ASC']
+                ]}
+            )
             return dbTemps
         } else {
             throw new Error('No se pudo obtener datos de la API')
