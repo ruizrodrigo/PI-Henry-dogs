@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const {getAllDogs } = require('../functions/functions.js');
-const {Dog} = require('../db')
+const {Dog} = require('../db');
+const {Temperament} = require('../db');
 
 
 // Importar todos los routers;
@@ -38,9 +39,11 @@ routerDogs.get('/:idRace', async (req, res) => {
             res.json({
                 id: findedDog.id,
                 name: findedDog.name,
-                imageUrl: findedDog.image,
-                weight: findedDog.weight,
-                height: findedDog.height,
+                image: findedDog.image,
+                weight: findedDog.weight.metric,
+                weight_imperial: findedDog.weight.imperial,
+                height: findedDog.height.metric,
+                height_imperial: findedDog.height.imperial,
                 life_span: findedDog.life_span,
                 temperament: findedDog.temperament
             })
@@ -54,20 +57,29 @@ routerDogs.get('/:idRace', async (req, res) => {
 
 routerDogs.post('/', async(req, res) => {
     try {
-        let {name, height, weight, life_span} = req.body
-        if(!name || !height || !weight) return res.status(404).json({err: 'Faltan datos'})
-        const [newDog, created] = await Race.findOrCreate({
+        let {name, height, height_imperial, weight, weight_imperial, life_span, image, temperaments} = req.body
+        if(!name || !height || !weight) return res.status(404).send({err: 'Faltan datos'})
+        const [newDog, created] = await Dog.findOrCreate({
             where: {
                 name,
                 height,
+                height_imperial,
                 weight,
-                life_span
+                weight_imperial,
+                life_span,
+                image
             }
         })
-        if(created) return res.json(newDog)
-        throw new Error('La raza ya existe')
+        if(!created) throw new Error('La raza ya existe')
+        else { 
+            temperaments.forEach(async temp => {
+                let asocTemp = await Temperament.findByPk(temp)
+                newDog.addTemperament(asocTemp)
+            })
+            return res.json(newDog)
+        }
     } catch (error) {
-        res.status(404).json({err: error.message})
+        res.status(404).send({err: error.message})
     }
 })
 

@@ -13,18 +13,33 @@ module.exports = (sequelize) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      get() {
+        const rawValue = this.getDataValue('name');
+        const first = rawValue[0].toUpperCase()
+        const second = rawValue.slice(1, Infinity).toLowerCase()
+        return first + second
+      }
     },
     height: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    height_imperial: {
+      type: DataTypes.STRING,
+    },
     weight: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    weight_imperial: {
+      type: DataTypes.STRING,
+    },
     life_span: {
       type: DataTypes.STRING,
-      default: undefined,
+      defaultValue: 'Dont provided',
+    },
+    image: {
+      type: DataTypes.STRING,
     },
     createdInDB: {
       type: DataTypes.BOOLEAN,

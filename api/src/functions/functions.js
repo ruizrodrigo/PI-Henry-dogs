@@ -12,8 +12,10 @@ const getDogsApi = async () => {
                 id: dog.id,
                 name: dog.name,
                 image: dog.image.url,
-                weight: dog.weight,
-                height: dog.height,
+                weight: dog.weight.metric,
+                weight_imperial: dog.weight.imperial,
+                height: dog.height.metric,
+                height_imperial: dog.height.imperial,
                 life_span: dog.life_span,
                 temperament: dog.temperament
             })
@@ -25,13 +27,28 @@ const getDogsApi = async () => {
 }
 const getDogsDB = async () => {
         const dogs = await Dog.findAll()
-        return dogs
+        var completeDogs = []
+        await dogs.forEach(async dog => {
+            var temps = ''
+            let dbTemps = await dog.getTemperaments({attributes:['name']})
+            await dbTemps.forEach(temp => {
+                temps = temps + temp.dataValues.name + ', '
+            })
+            let parcialDog = dog.toJSON()
+            completeDogs.push({...parcialDog, temperament: temps})
+        })
+        return completeDogs
 }
 const getAllDogs = async () => {
-   let dogsApi = await getDogsApi()
-   let dogsDB = await getDogsDB()
+    try {
+        let dogsDB = await getDogsDB()
+        let dogsApi = await getDogsApi()
+        return [...dogsApi, ...dogsDB]
+    } catch (error) {
+        console.log(error)
+    }
+        
 
-   return [...dogsApi, ...dogsDB]
 }
 const getTempsApi = async () => {
     try {
