@@ -42,17 +42,16 @@ const DogDetails = (props) => {
 
     return (
         <div >
-            <Link to='/dogs'>Back</Link>
             <h2>{dog.name}</h2>
             <div >
-                <img src={dog.imageUrl} alt="Imagen no disponible" />
+                <img src={dog.image} alt="Imagen no disponible" />
             </div>
             <p>Temperaments: {dog.temperament}</p>
             <p>{`Height: ${dog.height?.imperial} /  ${dog.height?.metric}`}</p>
             <p>{`Weight: ${dog.weight?.imperial} /  ${dog.weight?.metric}`}</p>
             <p>{`Life Span: ${dog.life_span}`}</p>
-            <Link to={`/dogs/${changeDog.current}`} name='prev' onClick={nextPrevDog}>Prev</Link>
-            <Link to={`/dogs/${changeDog.current}`} name='next' onClick={nextPrevDog}>Next</Link>
+            <Link to={`/home/${changeDog.current}`} name='prev' onClick={nextPrevDog}>Prev</Link>
+            <Link to={`/home/${changeDog.current}`} name='next' onClick={nextPrevDog}>Next</Link>
             
         </div>
     )

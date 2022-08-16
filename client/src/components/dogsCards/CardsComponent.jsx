@@ -1,26 +1,42 @@
 import React from "react";
 import {connect} from 'react-redux'
-import {getAllDogs, getTemps, filterTemp, filterDog} from '../../redux/actions/index'
+import {getAllDogs, getTemps, filterTemp, filterDog, filterAlp, filterWeight} from '../../redux/actions/index'
 import Dog from '../dogCard/DogComponent'
 import d from './Cards.module.css'
 
 
 export class Cards extends React.Component {
     state = {
+        measureSys: 'metric',
         filterTemps: [],
         orderAlp: 'A-Z',
+        orderWeight: 'ASC',
         searchDog: '',
         fstIndex: 0,
         sndIndex: 8,
-        currentPage: 1
+        currentPage: 1,
+        totalPages: []
     }
-    componentDidMount() {
+    componentDidMount = async () => {
         this.props.getTemps()
         const {search} = this.props.location
-        if(search) this.props.getAllDogs(search)
-        else 
-            this.props.getAllDogs()         
-
+        if(search) await this.props.getAllDogs(search)
+        else await this.props.getAllDogs()     
+        await this.props.filterAlp(this.state.orderAlp)
+    }
+    
+    shouldComponentUpdate(nextProps, nextState) {
+        if(nextProps.dogs !== this.props.dogs) return true
+        if(this.state.orderWeight !== nextState.orderWeight) { 
+            this.props.filterWeight(nextState.orderWeight)
+            return true
+        }
+        if(this.state.orderAlp !== nextState.orderAlp) {
+            this.props.filterAlp(nextState.orderAlp)
+            return true
+        }
+        if(nextProps.dogs.length >= this.props.dogs.length) return true
+        else return false
     }
 
     componentDidUpdate = async (prevProps, prevState) => {
@@ -39,7 +55,7 @@ export class Cards extends React.Component {
             }
         }
         if(this.state.filterTemps !== prevState.filterTemps) 
-        this.props.filterTemp(this.state.filterTemps)       
+        this.props.filterTemp(this.state.filterTemps)     
     }
 
     changePage = (e) => {
@@ -77,25 +93,17 @@ export class Cards extends React.Component {
         })
     }
 
-    orderAlp = () => {
-   
-        const {orderAlp} = this.state
-        orderAlp === 'A-Z' ?
-        this.setState({
-            ...this.state,
-             orderAlp: 'Z-A'  
-        }) :
-        this.setState({
-            ...this.state,
-             orderAlp: 'A-Z'  
-        })
-        this.props.dogs.reverse()
-        
+    orderAlp = async () => {
+        this.setState(prevState => {
+            return {
+                ...prevState,
+                orderAlp: prevState.orderAlp === 'A-Z' ? 'Z-A' : 'A-Z' 
+            }
+        }) 
     }
 
     filterTemps = (e) => {
         const selector = document.getElementById('temps')
-        console.log(e.target.value)
         if(e.target.value === 'clear') {
             this.props.getAllDogs()
             this.setState({
@@ -133,6 +141,7 @@ export class Cards extends React.Component {
             this.props.getAllDogs()
             this.setState({
                 ...this.state,
+                orderAlp: 'A-Z',
                 filterTemps: [],
                 currentPage: 1,
                 fstIndex: 0,
@@ -142,9 +151,30 @@ export class Cards extends React.Component {
         }
     }
 
+    changeSys = (e) => {
+        e.preventDefault();
+        e.target.innerText === 'Metric' ?
+        this.setState({
+            ...this.state,
+            measureSys: 'imperial'
+        }) :
+        this.setState({
+            ...this.state,
+            measureSys: 'metric'
+        })
+        e.target.innerText === 'Metric' ? e.target.innerText = 'Imperial' : e.target.innerText = 'Metric'
+    }
+
+    changeWeight = (e) => {
+        e.preventDefault();
+        this.setState({
+            ...this.state,
+            orderWeight: this.state.orderWeight === 'ASC' ? 'DES' : 'ASC'
+        })
+    }
+
     render() {
         return (
-            
             <div className={d.mainDiv}>
                 <select id='temps' onChange={this.filterTemps} defaultValue={'default'}>
                     <option value='default' disabled>Temperaments</option>
@@ -155,19 +185,21 @@ export class Cards extends React.Component {
                     })}
                 </select>
                 <div>{this.state.filterTemps.length > 0 && 
-                <div>
-                    <span>Filters:</span>
-                    {this.state.filterTemps.map((e, i) => {
-                        return (<button onClick={this.clearOne}key={i}>{e}</button>)
-                    })}
-                    <button value='clear' onClick={(e) => this.filterTemps(e)}>Clear</button>
+                    <div>
+                        <span>Filters:</span>
+                        {this.state.filterTemps.map((e, i) => {
+                            return (<button onClick={this.clearOne}key={i}>{e}</button>)
+                        })}
+                        <button value='clear' onClick={(e) => this.filterTemps(e)}>Clear</button>
+                    </div>}
                 </div>
-                }</div>
                 <input name='search' type="text" placeholder="Ingrese nombre de la raza..." onChange={this.searchDog}/><br></br>
                 <button onClick={this.orderAlp}>{this.state.orderAlp}</button>
                 <button name='prev' onClick={(e) => this.changePage(e)}>Prev</button>
                 <span>{this.state.currentPage} / {Math.ceil(this.props.dogs.length/8)}</span>
                 <button name='next' onClick={(e) => this.changePage(e)}>Next</button>
+                <button name="weight" onClick={this.changeWeight}>{this.state.orderWeight}</button>
+                <button onClick={this.changeSys}>Metric</button>
                 <div className={d.dogCards}>
                     {this.props.dogs.err ? <p>{this.props.dogs.err}</p> :
                     this.props.dogs?.slice(this.state.fstIndex,this.state.sndIndex).map(d => {
@@ -176,9 +208,9 @@ export class Cards extends React.Component {
                         id = {d.id}
                         key = {d.id}
                         name = {d.name}
-                        img = {d.image}
+                        image = {d.image}
                         temperament = {d.temperament}
-                        weight = {d.weight}
+                        weight = {this.state.measureSys === 'metric' ? `${d.weight} Kgs` : `${d.weight_imperial} Lbs`}
                         />
                     )})}
                 </div>
@@ -194,4 +226,4 @@ function mapState(state) {
     }
 }
 
-export default connect(mapState, {getAllDogs, getTemps, filterTemp, filterDog})(Cards);
+export default connect(mapState, {getAllDogs, getTemps, filterTemp, filterDog, filterAlp, filterWeight})(Cards);

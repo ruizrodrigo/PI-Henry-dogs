@@ -14,12 +14,12 @@ function App() {
     <div>
       <div>
       <Route exact path='/'><LandingPage/></Route>
-      <Route path='/dogs'><NavBar/></Route>
-      <Route exact path='/dogs'
+      <Route path='/home'><NavBar/></Route>
+      <Route exact path='/home'
       render={({location}) => <Cards location = {location}/>}></Route>
-      <Route exact path='/create'><CreateDog/></Route>
+      <Route exact path='/home/dogs/create'><CreateDog/></Route>
       <Route
-      exact path='/dogs/:idRace'
+      exact path='/home/:idRace'
       render={({match}) => <DogDetails match = {match}/>}></Route>
       </div>
     </div>

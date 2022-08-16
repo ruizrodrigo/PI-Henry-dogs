@@ -4,6 +4,8 @@ export const CREATE_DOG = 'CREATE_DOG';
 export const GET_ALL_TEMPS = 'GET_ALL_TEMPS'
 export const FILTER_TEMP = 'FILTER_TEMP'
 export const FILTER_DOG = 'FILTER_DOG'
+export const FILTER_ALP = 'FILTER_ALP'
+export const FILTER_WEIGHT = 'FILTER_WEIGHT'
 
 export const getAllDogs = (name) => dispatch => {
     const url = name ? `http://localhost:3001/dogs${name}` :
@@ -23,21 +25,39 @@ export const getDog = (id) => dispatch => {
     })
 }
 
-export const createDog = ({name, height, weight, life_span}) => {
-    return {
-        type: CREATE_DOG,
-        payload: {
-            name,
-            height,
-            weight,
-            life_span
+export const createDog = (newDog) => dispatch => {
+        return fetch('http://localhost:3001/dogs', 
+        {method: 'POST',
+        body: JSON.stringify(newDog),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
         }
-    }
-}
+        })
+        .then(res => res.json(), error => {return error})
+        .then(data => {
+            dispatch({type: CREATE_DOG, payload: data})
+        }) 
+    } 
+
 
 export const filterTemp = (payload) => {
     return {
         type: FILTER_TEMP,
+        payload
+    }
+}
+
+export const filterAlp = (payload) => {
+    return {
+        type: FILTER_ALP,
+        payload
+    }
+}
+
+export const filterWeight = (payload) => {
+    return {
+        type: FILTER_WEIGHT,
         payload
     }
 }
