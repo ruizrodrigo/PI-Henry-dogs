@@ -1,30 +1,47 @@
+*{
+    margin: 0;
+}
+
 .dogCard {
-    width: 100%;
-    height: 400px;
-    padding: 5px;
-    margin: 10px;
+    width: 85%;
+    height: 85%;
+    margin: 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    border: 2px solid brown;
+    justify-content: space-around;
+    border: 2px solid black;
     border-radius: 20px;
+    background-color: hsla(32, 64%, 38%, 0.9);
+    transition: all 0.4s;
+}
+
+
+.dogCard:hover{
+    transition: all 0.8s;
+    transform: scale(1.1);
 }
 
 .divImg {
-    width: 90%;
+    width: 80%;
     height: 50%;
-    padding-right: 10px;
+    margin: 10px;
 }
 
 .imgCard {
-    margin: 5px;
     width: 100%;
     height: 100%;
+    border: 1px solid hsl(32, 94%, 28%);
+    border-radius: 8px;
 }
 
 .name {
     text-decoration: none;
+    font-size: larger;
     color: black;
     font-weight: bolder;
+}
+
+.name:hover {
+    transform: scale(1.1);
 }

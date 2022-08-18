@@ -6,6 +6,9 @@ export const FILTER_TEMP = 'FILTER_TEMP'
 export const FILTER_DOG = 'FILTER_DOG'
 export const FILTER_ALP = 'FILTER_ALP'
 export const FILTER_WEIGHT = 'FILTER_WEIGHT'
+export const CLEAR_DOG = 'CLEAR_DOG'
+export const SET_PAGE = 'SET_PAGE'
+export const FILTER_LOC = 'FILTER_LOC'
 
 export const getAllDogs = (name) => dispatch => {
     const url = name ? `http://localhost:3001/dogs${name}` :
@@ -25,6 +28,14 @@ export const getDog = (id) => dispatch => {
     })
 }
 
+export const getTemps = () => dispatch => {
+    return fetch('http://localhost:3001/temperaments')
+    .then(res => res.json())
+    .then(data => {
+        dispatch({type: GET_ALL_TEMPS, payload:data})
+    });
+}
+
 export const createDog = (newDog) => dispatch => {
         return fetch('http://localhost:3001/dogs', 
         {method: 'POST',
@@ -40,6 +51,12 @@ export const createDog = (newDog) => dispatch => {
         }) 
     } 
 
+export const setPage = (payload) => {
+    return {
+        type: SET_PAGE,
+        payload
+    }
+}
 
 export const filterTemp = (payload) => {
     return {
@@ -55,19 +72,18 @@ export const filterAlp = (payload) => {
     }
 }
 
+export const filterLoc = (payload) => {
+    return {
+        type: FILTER_LOC,
+        payload
+    }
+}
+
 export const filterWeight = (payload) => {
     return {
         type: FILTER_WEIGHT,
         payload
     }
-}
-
-export const getTemps = () => dispatch => {
-    return fetch('http://localhost:3001/temperaments')
-    .then(res => res.json())
-    .then(data => {
-        dispatch({type: GET_ALL_TEMPS, payload:data})
-    });
 }
 
 export const filterDog = (payload, extra) => {
@@ -76,4 +92,11 @@ export const filterDog = (payload, extra) => {
             payload,
             extra
         }
+}
+
+export const clearDog = (payload) => {
+    return {
+        type: CLEAR_DOG,
+        payload
+    }
 }

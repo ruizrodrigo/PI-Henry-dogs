@@ -1,28 +1,35 @@
 import React from "react";
 import {connect} from 'react-redux'
-import {getAllDogs, getTemps, filterTemp, filterDog, filterAlp, filterWeight} from '../../redux/actions/index'
+import {getAllDogs, getTemps, filterTemp, filterDog, filterAlp, filterLoc, filterWeight, setPage} from '../../redux/actions/index'
 import Dog from '../dogCard/DogComponent'
 import d from './Cards.module.css'
+import img from '../../img/loading-thinking.gif'
+import sad from '../../img/sadDog.jpg'
 
 
 export class Cards extends React.Component {
     state = {
         measureSys: 'metric',
         filterTemps: [],
+        filterLoc: '',
         orderAlp: 'A-Z',
         orderWeight: 'ASC',
         searchDog: '',
         fstIndex: 0,
         sndIndex: 8,
-        currentPage: 1,
-        totalPages: []
+        dogsPages: [],
+        error: '',
+        loading: true
     }
+
+    //LifeCycles
     componentDidMount = async () => {
         this.props.getTemps()
         const {search} = this.props.location
         if(search) await this.props.getAllDogs(search)
-        else await this.props.getAllDogs()     
-        await this.props.filterAlp(this.state.orderAlp)
+        else await this.props.getAllDogs()
+        this.props.filterAlp(this.state.orderAlp)
+        this.setPagesDogs(this.props.dogs)
     }
     
     shouldComponentUpdate(nextProps, nextState) {
@@ -35,71 +42,155 @@ export class Cards extends React.Component {
             this.props.filterAlp(nextState.orderAlp)
             return true
         }
+        if(this.state.filterLoc !== nextState.filterLoc) {
+            try {
+                this.props.filterLoc(nextState.filterLoc)
+            } catch (error) {
+                this.setState({
+                    ...this.state,
+                    error: error.message
+                })
+            }
+            return true
+        }
+        if(this.state.dogsPages !== nextState.dogsPages) return true
+        if(nextProps.currentPage !== this.props.currentPage)return true
         if(nextProps.dogs.length >= this.props.dogs.length) return true
         else return false
     }
 
     componentDidUpdate = async (prevProps, prevState) => {
+        if (this.props.dogs !== prevProps.dogs) {
+            this.setPagesDogs(this.props.dogs)
+        }
         if(this.state.searchDog !== prevState.searchDog) {
-            if (!this.state.filterTemps.length) this.props.getAllDogs(this.state.searchDog)
+            if (!this.state.filterTemps.length) {
+                if(this.state.searchDog.length < prevState.searchDog.length){
+                    if(this.state.searchDog.length === 0) this.props.getAllDogs()
+                    else {
+                        try{
+                            await this.props.getAllDogs(this.state.searchDog)
+                            this.setState({
+                                ...this.state,
+                                error: ''
+                            })
+                            } catch (err) {
+                                this.setState({
+                                    ...this.state,
+                                    error: err.message
+                                })
+                            }
+                    }
+                } else {
+                    try {
+                        await this.props.getAllDogs(this.state.searchDog)
+                    } catch (err) {
+                        this.setState({
+                            ...this.state,
+                            error: err.message
+                        })
+                    }
+                }
+            }
             else{
                 if(this.state.searchDog.length < prevState.searchDog.length){
-                    await this.props.getAllDogs()
-                    let filter = this.state.searchDog.slice(6, Infinity)
-                    await this.props.filterDog(filter, this.props.dogs)
-                    await this.props.filterTemp(this.state.filterTemps)
+                    if(this.state.searchDog.length === 0) this.props.getAllDogs()
+                    else {
+                        try{
+                        await this.props.getAllDogs()
+                        this.setState({
+                            ...this.state,
+                            error: ''
+                        })
+                        let filter = this.state.searchDog.slice(6, Infinity)
+                        await this.props.filterDog(filter, this.props.dogs)
+                        await this.props.filterTemp(this.state.filterTemps)
+                        } catch (err) {
+                            this.setState({
+                                ...this.state,
+                                error: err.message
+                            })
+                        }
+                    }
                 } else {
-                    let filter = this.state.searchDog.slice(6, Infinity)
-                    this.props.filterDog(filter)
+                    try {
+                        let filter = this.state.searchDog.slice(6, Infinity)
+                        await this.props.filterDog(filter)
+                    }
+                    catch(err) {
+                        this.setState({
+                            ...this.state,
+                            error: err.message
+                           })
+                    }
                 }
             }
         }
-        if(this.state.filterTemps !== prevState.filterTemps) 
-        this.props.filterTemp(this.state.filterTemps)     
+        if(this.state.filterTemps !== prevState.filterTemps) {
+            try {
+                this.props.filterTemp(this.state.filterTemps)     
+            } catch(error) {
+                this.props.setPage(0)
+            this.setState({
+                ...this.state,
+                error: error.message
+            })
+            }
+        }
     }
 
-    changePage = (e) => {
+    //Methods
+    setPagesDogs = (dogsArray) => {
+        let fstIndex = 0;
+        let sndIndex = 8;
+        let newDogs = []
+        while(newDogs.length < dogsArray.length/8) {
+            newDogs = [...newDogs, dogsArray.slice(fstIndex, sndIndex)]
+            fstIndex = fstIndex + 8;
+            sndIndex = sndIndex + 8;
+        }
+        this.setState({
+            ...this.state,
+            dogsPages: newDogs
+        })
+    }
+    changePage = (e, i) => {
         e.preventDefault();
-        let {fstIndex, sndIndex, currentPage} = this.state
         if(e.target.name === 'prev') {
-            if(fstIndex >= 8) {
-                this.setState({
-                    ...this.state,
-                    fstIndex: fstIndex -8,
-                    sndIndex: sndIndex -8,
-                    currentPage: currentPage-1
-                })
-            }
+            this.setState({
+                ...this.state,
+                fstIndex: this.state.fstIndex-8,
+                sndIndex: this.state.sndIndex-8,
+            })
+            this.props.setPage(this.props.currentPage - 1)
         } else {
-            if(sndIndex < this.props.dogs.length) {
-                this.setState({
-                    ...this.state,
-                    fstIndex: fstIndex + 8,
-                    sndIndex: sndIndex + 8,
-                    currentPage: currentPage+1
-                })
-            }
+            this.setState({
+                ...this.state,
+                fstIndex: this.state.fstIndex+8,
+                sndIndex: this.state.sndIndex+8,
+            })
+            this.props.setPage(this.props.currentPage + 1)
         }
     }
 
     searchDog = (e) => {
         e.preventDefault();
+        this.props.setPage(0)
         this.setState({
             ...this.state,
             searchDog: `?name=${e.target.value}`,
-            currentPage: 1,
             fstIndex: 0,
             sndIndex: 8,
         })
     }
 
-    orderAlp = async () => {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                orderAlp: prevState.orderAlp === 'A-Z' ? 'Z-A' : 'A-Z' 
-            }
-        }) 
+    orderAlp = () => {
+            this.setState(prevState => {
+                return {
+                    ...prevState,
+                    orderAlp: prevState.orderAlp === 'A-Z' ? 'Z-A' : 'A-Z' 
+                }
+            }) 
     }
 
     filterTemps = (e) => {
@@ -112,9 +203,11 @@ export class Cards extends React.Component {
                 currentPage: 1,
                 fstIndex: 0,
                 sndIndex: 8,
+                error: ''
             })
             selector.value = 'default'
         } else {
+            !this.state.filterTemps.includes(selector.value) &&
             this.setState({
                 ...this.state,
                 filterTemps: [...this.state.filterTemps, selector.value],
@@ -123,6 +216,30 @@ export class Cards extends React.Component {
                 sndIndex: 8,
             })
             selector.value = 'default'
+        }
+    }
+
+    filterLoc = async (e) => {
+        if(e.target.value === 'ALL') {
+            await this.props.getAllDogs()
+            this.setState({
+                ...this.state,
+                error: ''
+            })
+        } else if(e.target.value === 'API') {
+            await this.props.getAllDogs()
+            this.setState({
+                ...this.state,
+                filterLoc: e.target.value,
+                error: ''
+            })
+        } else {
+            await this.props.getAllDogs()
+            this.setState({
+                ...this.state,
+                filterLoc: e.target.value,
+                error: ''
+            })
         }
     }
 
@@ -136,6 +253,9 @@ export class Cards extends React.Component {
                 currentPage: 1,
                 fstIndex: 0,
                 sndIndex: 8,
+                error: '',
+                orderAlp: 'A-Z',
+                orderWeight: 'ASC'
             })
         } else {
             this.props.getAllDogs()
@@ -146,7 +266,8 @@ export class Cards extends React.Component {
                 currentPage: 1,
                 fstIndex: 0,
                 sndIndex: 8,
-                searchDog: ''
+                searchDog: '',
+                error: ''
             })
         }
     }
@@ -164,7 +285,7 @@ export class Cards extends React.Component {
         })
         e.target.innerText === 'Metric' ? e.target.innerText = 'Imperial' : e.target.innerText = 'Metric'
     }
-
+    
     changeWeight = (e) => {
         e.preventDefault();
         this.setState({
@@ -173,46 +294,77 @@ export class Cards extends React.Component {
         })
     }
 
+    
+    
     render() {
         return (
             <div className={d.mainDiv}>
-                <select id='temps' onChange={this.filterTemps} defaultValue={'default'}>
-                    <option value='default' disabled>Temperaments</option>
-                    {this.props.temps?.map(e => {
-                        return (
-                            <option key={e.id} value={e.name}>{e.name}</option>
-                        )
-                    })}
-                </select>
-                <div>{this.state.filterTemps.length > 0 && 
-                    <div>
-                        <span>Filters:</span>
-                        {this.state.filterTemps.map((e, i) => {
-                            return (<button onClick={this.clearOne}key={i}>{e}</button>)
-                        })}
-                        <button value='clear' onClick={(e) => this.filterTemps(e)}>Clear</button>
+                {!this.props.dogs.length && <div><img className={d.loading} src={img} alt=''></img></div>}
+                {this.props.dogs.length && <div className={d.filterBar}>
+                    <div className={d.borderFilters}>
+                        <h3>Filter By:</h3>
+                        <h5>Name:</h5>
+                        <input className={d.inputSearch} autoComplete='off' name='search' type="text" placeholder="Ex: Fox" onChange={this.searchDog}/><br></br>
+                        <h5>Temperaments:</h5>
+                        <select className={d.inputSearch} id='temps' onChange={this.filterTemps} defaultValue={'default'}>
+                            <option value='default' disabled>Select</option>
+                            {this.props.temps?.map(e => {
+                                return (
+                                    <option key={e.id} value={e.name}>{e.name}</option>
+                                )
+                            })}
+                        </select>
+                        {this.state.filterTemps.length > 0 && 
+                            <>
+                            <h5><b>Applicated:</b></h5>
+                            {this.state.filterTemps.map((e, i) => {
+                                return (<button className={d.dogsButtonSelect} onClick={this.clearOne}key={i}>{e}</button>)
+                            })}
+                            <br /><button value='clear' className={d.dogsButtonSelect} onClick={(e) => this.filterTemps(e)}>Clear</button><br />
+                        </>}
+                        <h5>Location</h5>
+                        <select name="location" id="location" onChange={this.filterLoc} defaultValue='ALL'>
+                            <option value="ALL">ALL</option>
+                            <option value="DB">DB</option>
+                            <option value="API">API</option>
+                        </select>
+                    </div>
+                    <div className={d.borderFilters}>
+                            <h3>Order By:</h3>
+                            <h5>Alphabethical</h5>
+                            <button className={d.dogsButtonSelect} onClick={this.orderAlp}>{this.state.orderAlp}</button>
+                            <h5>Weight</h5>
+                            <button className={d.dogsButtonSelect} name="weight" onClick={this.changeWeight}>{this.state.orderWeight}</button>
+                            <h5>Change measuring system</h5>
+                            <button className={d.dogsButtonSelect} onClick={this.changeSys}>Metric</button>
+                    </div>
+                </div>}
+                <div>
+                    {this.props.dogs.length && <div className={d.pageDiv}>
+                        {this.props.currentPage > 0 && <div className={d.dogsButtonPrev}><button name='prev' className={d.dogsButton} onClick={this.changePage}>Prev</button></div>}
+                        {this.state.dogsPages?.map((dog, i) => <p className={i === this.props.currentPage ? d.pageButtonActive : d.pageButton} key={i}>{i+1}</p>)}
+                        {this.props.currentPage + 1 < this.state.dogsPages.length && <div className={d.dogsButtonNext}><button name='next' className={d.dogsButton} onClick={this.changePage}>Next</button></div>}
                     </div>}
-                </div>
-                <input name='search' type="text" placeholder="Ingrese nombre de la raza..." onChange={this.searchDog}/><br></br>
-                <button onClick={this.orderAlp}>{this.state.orderAlp}</button>
-                <button name='prev' onClick={(e) => this.changePage(e)}>Prev</button>
-                <span>{this.state.currentPage} / {Math.ceil(this.props.dogs.length/8)}</span>
-                <button name='next' onClick={(e) => this.changePage(e)}>Next</button>
-                <button name="weight" onClick={this.changeWeight}>{this.state.orderWeight}</button>
-                <button onClick={this.changeSys}>Metric</button>
-                <div className={d.dogCards}>
-                    {this.props.dogs.err ? <p>{this.props.dogs.err}</p> :
-                    this.props.dogs?.slice(this.state.fstIndex,this.state.sndIndex).map(d => {
-                        return (
-                        <Dog
-                        id = {d.id}
-                        key = {d.id}
-                        name = {d.name}
-                        image = {d.image}
-                        temperament = {d.temperament}
-                        weight = {this.state.measureSys === 'metric' ? `${d.weight} Kgs` : `${d.weight_imperial} Lbs`}
-                        />
-                    )})}
+                    <div className={d.dogCards}>
+                        {this.state.error ? 
+                        <div className={d.errorTemps}>
+                            <img className={d.errorTempsImg} src={sad} alt=""></img>
+                            <div className={d.errorTempsText}>
+                                <p>Woof! {this.state.error}</p>
+                            </div>
+                        </div> 
+                        : this.props.dogs.length && this.props.dogs?.slice(this.state.fstIndex,this.state.sndIndex).map(d => {
+                            return (
+                                <Dog
+                                id = {d.id}
+                                key = {d.id}
+                                name = {d.name}
+                                image = {d.image}
+                                temperament = {d.temperament}
+                                weight = {this.state.measureSys === 'metric' ? `${d.weight} Kgs` : `${d.weight_imperial} Lbs`}
+                                />
+                        )})}
+                    </div> 
                 </div>
             </div>
         )
@@ -222,8 +374,10 @@ export class Cards extends React.Component {
 function mapState(state) {
     return {
         dogs: state.dogs,
-        temps: state.temps
+        temps: state.temps,
+        currentPage: state.currentPage,
+        error: state.error
     }
 }
 
-export default connect(mapState, {getAllDogs, getTemps, filterTemp, filterDog, filterAlp, filterWeight})(Cards);
+export default connect(mapState, {getAllDogs, getTemps, filterTemp, filterDog, filterAlp, filterWeight, setPage, filterLoc})(Cards);

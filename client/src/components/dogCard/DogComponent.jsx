@@ -9,8 +9,8 @@ const Dog = ({id, name, image, temperament, weight}) => {
             <div className={c.divImg}>
                 <img className={c.imgCard} src={image} alt="Imagen no disponible" />
             </div>
-            <p>Temperaments: {temperament}</p>
-            <p>Weight: {weight} </p>
+            <p><b>Temperaments:</b> {temperament}</p>
+            <p><b>Weight:</b> {weight} </p>
         </div>
     )
 }

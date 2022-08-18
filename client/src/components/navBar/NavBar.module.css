@@ -1,0 +1,47 @@
+.divBar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 10%;
+    background-color: hsla(32, 94%, 28%, 0.8);
+}
+
+.titleImg {
+    height: 100%;
+}
+
+.divLink{
+    width: 75%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+
+.buttonLink {
+    text-decoration: none;
+    background-color: hsl(32, 67%, 58%);
+    border-bottom: 5px solid hsl(32, 94%, 28%);
+    border-right: 5px solid hsl(32, 94%, 28%);
+    border-radius: 20px;
+    color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    padding: 0px 20px 0px 20px;
+    margin-left: 10px;
+    height: 60%;
+    transition: all 0.4s ease 0s;
+}
+
+.buttonLink:hover{
+    background-color:  hsl(32, 78%, 41%);
+    color: white;
+}
+
+
+.buttonLink:active {
+	transform: translateY(2px)
+    translateX(2px)
+}

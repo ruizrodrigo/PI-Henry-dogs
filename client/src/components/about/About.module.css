@@ -17,17 +17,9 @@
 }
 
 .imgDetail {
-    width: 50%;
-    height: 50%;
+    width: 30%;
+    height: 80%;
     border-radius: 20px;
     border: 1px solid black;
     margin: 2% 5% 0% 5%;
-}
-
-.divDetails{
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: space-around;
 }

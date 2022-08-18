@@ -22,7 +22,8 @@ routerDogs.get('/', async (req, res) => {
         } else {
             const getDogs = await getAllDogs()
             let findedDog = getDogs.filter(dog => dog.name.toLowerCase().includes(name.toLowerCase()))
-            findedDog.length ? res.json(findedDog) : res.status(404).json({err: 'No se encontro la raza solicitada'})
+            if(findedDog.length) return res.json(findedDog) 
+            else throw new Error("Can't find that race")
         }
     } catch (error) {
         res.status(404).json({err: error.message})
@@ -34,21 +35,21 @@ routerDogs.get('/:idRace', async (req, res) => {
 
     try {
         let dogs = await getAllDogs()
-        let findedDog = dogs.find(dog => dog.id.toString() === idRace)
+        let findedDog = dogs.find(dog => dog.id.toString() === idRace.toString())
         if(findedDog) { 
             res.json({
                 id: findedDog.id,
                 name: findedDog.name,
                 image: findedDog.image,
-                weight: findedDog.weight.metric,
-                weight_imperial: findedDog.weight.imperial,
-                height: findedDog.height.metric,
-                height_imperial: findedDog.height.imperial,
+                weight: findedDog.weight,
+                weight_imperial: findedDog.weight_imperial,
+                height: findedDog.height,
+                height_imperial: findedDog.height_imperial,
                 life_span: findedDog.life_span,
                 temperament: findedDog.temperament
             })
         } else{
-            res.status(404).json({err:'No se halló ninguna raza con ese ID'})
+            res.status(404).json({err:"Can't find any race whit that ID"})
         }
     } catch(err) {
         res.status(404).send({err: err.message})
@@ -58,7 +59,7 @@ routerDogs.get('/:idRace', async (req, res) => {
 routerDogs.post('/', async(req, res) => {
     try {
         let {name, height, height_imperial, weight, weight_imperial, life_span, image, temperaments} = req.body
-        if(!name || !height || !weight) return res.status(404).send({err: 'Faltan datos'})
+        if(!name || !height || !weight) return res.status(404).send({err: 'Missing Data'})
         const [newDog, created] = await Dog.findOrCreate({
             where: {
                 name,
@@ -70,7 +71,7 @@ routerDogs.post('/', async(req, res) => {
                 image
             }
         })
-        if(!created) throw new Error('La raza ya existe')
+        if(!created) throw new Error('That race has already been created')
         else { 
             temperaments.forEach(async temp => {
                 let asocTemp = await Temperament.findByPk(temp)

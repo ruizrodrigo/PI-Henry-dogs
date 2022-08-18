@@ -1,0 +1,228 @@
+.mainDiv {
+    display: flex;
+    height: 90%;
+    width: 100%;
+    justify-content: center;
+    padding-top: 3%
+}
+
+.containerDiv {
+    padding-top: 20px;
+    width: 60%;
+    height: 70%;
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid black;
+    border-radius: 20px;
+    background-color: hsla(32, 64%, 38%, 0.9);
+    transition: all 0.4s;
+}
+
+.newImg {
+    width: 80%;
+    height: 50%;
+    border: 1px solid black;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    top: 1%;
+    left: 0px;
+}
+
+.divGrid {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 35% 30% 30%;
+    grid-template-rows: 33% 33% 34%;
+    justify-items: center;
+    text-align:  center;
+    border: 1px solid black;
+    background-color: hsl(32, 67%, 58%);;
+    border-radius: 10px;
+    margin: 1%;
+    padding: 3%;
+}
+
+.one {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.two {
+    grid-column: 1;
+    grid-row: 1 / 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.three {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.four {
+    grid-column: 2;
+    grid-row: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.five {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.six {
+    grid-column: 3;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.seven {
+    grid-column: 3;
+    grid-row: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.labelName {
+    margin-bottom: 10%;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 5%;
+}
+
+.okButton {
+    background-color: hsl(32, 67%, 58%);
+    border-radius: 20px;
+    border: 1px solid hsl(32, 94%, 28%);;
+    border-bottom: 3px solid hsl(32, 94%, 28%);
+    border-right: 3px solid hsl(32, 94%, 28%);
+    margin-top: 3px;
+    color: black;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    height: fit-content;
+    padding: 5px 20px 5px 20px;
+    transition: all 0.5s;
+}
+
+.okButton:hover{
+    background-color:  hsl(32, 78%, 41%);
+    color: white;
+    cursor: pointer;
+}
+.okButton:active{
+    transform: translateY(2px)
+    translateX(2px)
+}
+
+.sucesful {
+    height: max-content;
+    padding: 5px;
+    font-style: oblique;
+    text-align: center;
+    background-color: hsl(32, 67%, 58%);
+    border-radius: 20px;
+    border: 2px solid hsl(32, 94%, 28%);;
+}
+
+.inputGral{
+    border: none;
+    border-radius: 3px;
+    width: 80%;
+    height: 5%;
+    box-shadow: 3px 3px 0px grey;
+    display: flex;
+}
+
+.correct{
+    width: 50%;
+    border-radius: 3px;
+    height: 15px;
+    border: 2px solid green;
+}
+
+label {
+    margin-bottom: 1%;
+    font-size: larger;
+}
+
+.correct:focus{
+    outline: 2px solid green;
+}
+
+.incorrect{
+    width: 50%;
+    border-radius: 3px;
+    height: 15px;
+    border: 2px solid red;
+}
+
+.incorrect:focus{
+    outline: 2px solid red;
+}
+
+.selected {
+    background-color: hsl(32, 67%, 58%);
+    border-radius: 20px;
+    border: none;
+    border-bottom: 3px solid hsl(32, 94%, 28%);
+    border-right: 3px solid hsl(32, 94%, 28%);
+    color: black;
+    justify-content: center;
+    align-items: center;
+    font-size: small;
+    width: min-content;
+    height: min-content;
+    transition: all 0.1s;
+}
+
+select {
+    background-color: hsl(32, 67%, 58%);
+    border: 1px solid black;
+    border-radius: 3px;
+    font-size: small;
+    width: 70%;
+    text-align: center;
+ }
+ select:focus{ outline: none;}
+
+ .divCreate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+ }
+
+ .selectedDiv{
+    display: flexbox;
+    flex-direction: row;
+ }
+ 
