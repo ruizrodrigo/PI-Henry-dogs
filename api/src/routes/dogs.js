@@ -84,4 +84,15 @@ routerDogs.post('/', async(req, res) => {
     }
 })
 
+routerDogs.get('/miNombre/min', async(req, res) => {
+    try {
+        let minDogs = await getAllDogs()
+        let filterDog = minDogs.filter(dog => dog.weight.split(' - ')[1] < 5 )
+        if(!filterDog.length) throw new Error('No se encontraron perros')
+        else res.json(filterDog)
+    } catch (error) {
+        res.status(404).send({err: error.message})
+    }
+})
+
 module.exports = routerDogs;

@@ -1,13 +1,17 @@
 import React, {useEffect, useState} from "react";
+import {useHistory} from 'react-router-dom'
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createDog, getTemps, clearDog } from "../../redux/actions";
 import s, {incorrect, correct} from './Create.module.css'
+import errorImg from '../../img/undefinedDog.png'
 const initial = 'https://static.vecteezy.com/system/resources/previews/002/759/823/non_2x/cartoon-character-cute-corgi-dog-vector.jpg'
 
 const CreateDog = () => {
     const createdDog = useSelector(state => state.dog)
     const temperaments = useSelector(state => state.temps)
+    const history = useHistory()
+
     const [input, setInput] = useState({
         name: '',
         image: '',
@@ -25,6 +29,7 @@ const CreateDog = () => {
     })
 
     const [classDog, setClassDog] = useState({
+        image: s.inputImg,
         name: incorrect,
         height1: incorrect,
         height2: incorrect,
@@ -46,6 +51,7 @@ const CreateDog = () => {
         setClassDog(prev => {
             return {
                 ...prev,
+                image: input.image.length < 255 ? s.inputImg : s.inputImgError,
                 name: input.name.length ? correct : incorrect,
                 height1: input.height1 > 0 ? correct : incorrect,
                 height2: input.height2 > 0 && Number(input.height2) > Number(input.height1) ? correct : incorrect,
@@ -64,7 +70,7 @@ const CreateDog = () => {
         let newDog = {
             name: input.name,
             height: `${input.height1} - ${input.height2}`,
-            height_imperial: `${Math.floor(input.height1 / 0.4535)} - ${Math.floor(input.height2 / 0.4535)}`,
+            height_imperial: `${Math.floor(input.height1 / 2.54)} - ${Math.floor(input.height2 / 2.54)}`,
             weight: `${input.weight1} - ${input.weight2}`,
             weight_imperial: `${Math.floor(input.weight1 / 0.4535)} - ${Math.floor(input.weight2 / 0.4535)}`,
             life_span: `${input.life_span1} - ${input.life_span2}`,
@@ -131,9 +137,10 @@ const CreateDog = () => {
                     <h1>Create your own race</h1>
                 </div>
                     <form onSubmit={handleSubmit} className={s.divGrid}>
-                        <div className={s.two}>
+                        <div className={s.one}>
                             <label><b>Image (Optional):</b></label>
-                                <input className={s.inputGral}
+                                <input className={classDog.image}
+                                disabled={input.complete}
                                 key='image'
                                 type='text'
                                 value={input.image}
@@ -141,13 +148,16 @@ const CreateDog = () => {
                                 placeholder="image's url"
                                 onChange={handleInputChange}
                                 autoComplete="off"
-                                /><br/><br/>
+                                />
+                            {classDog.image === s.inputImgError && <span style={{color: 'red'}}>Image's url length must be less than 255 char</span>}
+                            <br/><br/>
                             <label><b>Preview:</b></label>
-                            <img className={s.newImg} src={input.image ? input.image : initial} alt="Here will be shown your preview" />
+                            <img className={s.newImg} src={classDog.image === s.inputImgError ? errorImg : input.image ? input.image : initial} alt="Here will be shown your preview" />
                         </div>
-                        <div className={s.one}>
+                        <div className={s.two}>
                             <label className={s.labelName}><b>Name:</b></label>
                                 <input className={classDog.name}
+                                disabled={input.complete}
                                 placeholder= 'Ex: Foxy'
                                 key='name'
                                 type="text"
@@ -158,10 +168,11 @@ const CreateDog = () => {
                                 /><br></br>
                         </div>
                         <div className={s.three}>
-                        <label><b>Height:</b></label>
+                        <label><b>Height (Cms):</b></label>
                             <div>
                                 <h6>Min: </h6>
                                 <input className={classDog.height1}
+                                disabled={input.complete}
                                 key='height1'
                                 type="number"
                                 min='0'
@@ -173,6 +184,7 @@ const CreateDog = () => {
                                 />
                                 <h6>Max: </h6>
                                 <input className={classDog.height2}
+                                disabled={input.complete}
                                 key='height2'
                                 type="number"
                                 min='0'
@@ -186,7 +198,7 @@ const CreateDog = () => {
                         </div>
                         <div className={s.four}>
                             <label><b>Temperaments:</b></label>
-                            <select id="temps" defaultValue={'default'} onChange={handleSelectorChange}>
+                            <select id="temps" defaultValue={'default'} disabled={input.complete} onChange={handleSelectorChange}>
                                 <option value="default" disabled>Select</option>
                                 {temperaments.map(e =>                        
                                         <option key={e.id} id={e.id}>{e.name}</option>
@@ -209,6 +221,7 @@ const CreateDog = () => {
                             <div>
                                 <h6>Min: </h6>
                                 <input className={classDog.weight1}
+                                disabled={input.complete}
                                 key='weight1'
                                 type="number"
                                 min='0'
@@ -220,6 +233,7 @@ const CreateDog = () => {
                                 />
                                 <h6>Max: </h6>
                                 <input className={classDog.weight2}
+                                disabled={input.complete}
                                 key='weight2'
                                 type="number"
                                 min='0'
@@ -236,6 +250,7 @@ const CreateDog = () => {
                             <div>
                                 <h6>Min: </h6>
                                 <input className={classDog.life_span1}
+                                disabled={input.complete}
                                 key='life_span1'
                                 type="number"
                                 min='0'
@@ -247,6 +262,7 @@ const CreateDog = () => {
                                 />
                                 <h6>Max: </h6>
                                 <input className={classDog.life_span2}
+                                disabled={input.complete}
                                 key='life_span2'
                                 type="number"
                                 min='0'
@@ -259,11 +275,12 @@ const CreateDog = () => {
                             </div>
                         </div>
                         <div className={s.seven} >
-                            <input type="submit" hidden={!input.name || !input.height1 || !Number(input.height2) > Number(input.height1) || !input.weight1 || !Number(input.weight2) > Number(input.weight1) || !temps.name.length || !Number(input.life_span2) >= Number(input.life_span1)} placeholder="Create!" className={s.okButton}/>
+                            <input type="submit" hidden={classDog.name === incorrect || classDog.height1 === incorrect || classDog.height2 === incorrect || classDog.weight1 === incorrect || classDog.weight2 === incorrect || classDog.life_span2 === incorrect || !temps.name.length} placeholder="Create!" className={s.okButton}/>
                             <div className={s.divCreate}>
                                 {createdDog.err && <p>{createdDog.err}</p>}
                                 {createdDog.createdInDB && <p className={s.sucesful}>La raza <b>{createdDog.name}</b> fue creada correctamente!</p>}
                                 {input.complete && <button className={s.okButton} onClick={createAgain}>Create Another</button>}
+                                {input.complete && <button className={s.okButton} onClick={() => history.push('/home')}>Return Home</button>}
                             </div>
                         </div>
                     </form>

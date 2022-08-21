@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDog, clearDog } from "../../redux/actions";
 import d from './DogDetails.module.css'
+import loading from '../../img/loading-thinking.gif'
 
 const DogDetails = (props) => {
     const dog = useSelector((state) => state.dog)
@@ -21,7 +22,8 @@ const DogDetails = (props) => {
 
     return (
         <div className={d.divMain}>
-            <div className={d.divContainer}>
+            {!dog.name && <div><img className={d.loading} src={loading} alt=''></img></div>}
+            {dog.name && <div className={d.divContainer}>
                 <h1>{dog.name}</h1>
                 <img className={d.imgDetail} src={dog.image} alt="Imagen no disponible" />
                 <div className={d.divDetails}>
@@ -30,7 +32,7 @@ const DogDetails = (props) => {
                     <p><b>Weight:</b> {dog.weight} Kgs / {dog.weight_imperial} Lbs</p>
                     <p><b>Life Span:</b> {dog.life_span}</p>
                 </div>
-            </div>
+            </div>}
         </div>
     )
 }

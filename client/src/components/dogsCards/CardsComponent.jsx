@@ -11,7 +11,7 @@ export class Cards extends React.Component {
     state = {
         measureSys: 'metric',
         filterTemps: [],
-        filterLoc: '',
+        filterLoc: 'ALL',
         orderAlp: 'A-Z',
         orderWeight: 'ASC',
         searchDog: '',
@@ -26,8 +26,10 @@ export class Cards extends React.Component {
     componentDidMount = async () => {
         this.props.getTemps()
         const {search} = this.props.location
-        if(search) await this.props.getAllDogs(search)
-        else await this.props.getAllDogs()
+        if(!this.props.dogs.length) {
+            if(search) await this.props.getAllDogs(search)
+            else await this.props.getAllDogs()
+        }
         this.props.filterAlp(this.state.orderAlp)
         this.setPagesDogs(this.props.dogs)
     }
@@ -64,7 +66,7 @@ export class Cards extends React.Component {
             this.setPagesDogs(this.props.dogs)
         }
         if(this.state.searchDog !== prevState.searchDog) {
-            if (!this.state.filterTemps.length) {
+            if (!this.state.filterTemps.length && this.state.filterLoc === 'ALL') {
                 if(this.state.searchDog.length < prevState.searchDog.length){
                     if(this.state.searchDog.length === 0) this.props.getAllDogs()
                     else {
@@ -91,8 +93,7 @@ export class Cards extends React.Component {
                         })
                     }
                 }
-            }
-            else{
+            } else if(this.state.filterTemps.length && this.state.filterLoc === 'ALL'){
                 if(this.state.searchDog.length < prevState.searchDog.length){
                     if(this.state.searchDog.length === 0) this.props.getAllDogs()
                     else {
@@ -124,8 +125,84 @@ export class Cards extends React.Component {
                            })
                     }
                 }
+            } else if(!this.state.filterTemps.length && this.state.filterLoc !== 'ALL'){
+                if(this.state.searchDog.length < prevState.searchDog.length){
+                    if(this.state.searchDog.length === 0) {
+                        await this.props.getAllDogs()
+                        await this.props.filterLoc(this.state.filterLoc)}
+                    else {
+                        try{
+                        await this.props.getAllDogs()
+                        await this.props.filterLoc(this.state.filterLoc)
+                        this.setState({
+                            ...this.state,
+                            error: ''
+                        })
+                        let filter = this.state.searchDog.slice(6, Infinity)
+                        await this.props.filterDog(filter, this.props.dogs)
+                        await this.props.filterLoc(this.state.filterLoc)
+                        } catch (err) {
+                            this.setState({
+                                ...this.state,
+                                error: err.message
+                            })
+                        }
+                    }
+                } else {
+                    try {
+                        let filter = this.state.searchDog.slice(6, Infinity)
+                        await this.props.filterDog(filter)
+                        await this.props.filterLoc(this.state.filterLoc)
+                    }
+                    catch(err) {
+                        this.setState({
+                            ...this.state,
+                            error: err.message
+                           })
+                    }
+                } 
+            } else if(this.state.filterTemps.length && this.state.filterLoc !== 'ALL'){
+                if(this.state.searchDog.length < prevState.searchDog.length){
+                    if(this.state.searchDog.length === 0) {
+                        await this.props.getAllDogs()
+                        await this.props.filterTemp(this.state.filterTemps)
+                        await this.props.filterLoc(this.state.filterLoc)
+                    }
+                    else {
+                        try{
+                        await this.props.getAllDogs()
+                        this.setState({
+                            ...this.state,
+                            error: ''
+                        })
+                        let filter = this.state.searchDog.slice(6, Infinity)
+                        await this.props.filterDog(filter, this.props.dogs)
+                        await this.props.filterTemp(this.state.filterTemps)
+                        await this.props.filterLoc(this.state.filterLoc)
+                        } catch (err) {
+                            this.setState({
+                                ...this.state,
+                                error: err.message
+                            })
+                        }
+                    }
+                } else {
+                    try {
+                        let filter = this.state.searchDog.slice(6, Infinity)
+                        await this.props.filterDog(filter)
+                    }
+                    catch(err) {
+                        this.setState({
+                            ...this.state,
+                            error: err.message
+                           })
+                    }
+                }
             }
         }
+
+
+
         if(this.state.filterTemps !== prevState.filterTemps) {
             try {
                 this.props.filterTemp(this.state.filterTemps)     
@@ -163,14 +240,26 @@ export class Cards extends React.Component {
                 sndIndex: this.state.sndIndex-8,
             })
             this.props.setPage(this.props.currentPage - 1)
-        } else {
+        } else if(e.target.name === 'next'){
             this.setState({
                 ...this.state,
                 fstIndex: this.state.fstIndex+8,
                 sndIndex: this.state.sndIndex+8,
             })
             this.props.setPage(this.props.currentPage + 1)
-        }
+        } else (
+            this.props.setPage(i)
+        )
+    }
+
+    setPagination = (e, indexDogs) => {
+        e.preventDefault();
+        this.changePage(e, indexDogs)
+        this.setState({
+            ...this.state,
+            fstIndex: 8 * indexDogs,
+            sndIndex: 8 + 8 * indexDogs
+        })
     }
 
     searchDog = (e) => {
@@ -197,21 +286,21 @@ export class Cards extends React.Component {
         const selector = document.getElementById('temps')
         if(e.target.value === 'clear') {
             this.props.getAllDogs()
+            this.props.setPage(0)
             this.setState({
                 ...this.state,
                 filterTemps: [],
-                currentPage: 1,
                 fstIndex: 0,
                 sndIndex: 8,
                 error: ''
             })
             selector.value = 'default'
         } else {
+            this.props.setPage(0)
             !this.state.filterTemps.includes(selector.value) &&
             this.setState({
                 ...this.state,
                 filterTemps: [...this.state.filterTemps, selector.value],
-                currentPage: 1,
                 fstIndex: 0,
                 sndIndex: 8,
             })
@@ -222,23 +311,33 @@ export class Cards extends React.Component {
     filterLoc = async (e) => {
         if(e.target.value === 'ALL') {
             await this.props.getAllDogs()
+            this.props.filterAlp(this.state.orderAlp)
+            this.props.setPage(0)
+            document.getElementById('search').value = ''
             this.setState({
                 ...this.state,
+                filterLoc: 'ALL',
                 error: ''
             })
         } else if(e.target.value === 'API') {
             await this.props.getAllDogs()
+            this.props.filterAlp(this.state.orderAlp)
+            this.props.setPage(0)
             this.setState({
                 ...this.state,
                 filterLoc: e.target.value,
-                error: ''
+                error: '',
+                fstIndex: 0,
+                sndIndex: 8,
             })
         } else {
-            await this.props.getAllDogs()
+            this.props.setPage(0)
             this.setState({
                 ...this.state,
                 filterLoc: e.target.value,
-                error: ''
+                error: '',
+                fstIndex: 0,
+                sndIndex: 8,
             })
         }
     }
@@ -294,6 +393,7 @@ export class Cards extends React.Component {
         })
     }
 
+   
     
     
     render() {
@@ -304,7 +404,7 @@ export class Cards extends React.Component {
                     <div className={d.borderFilters}>
                         <h3>Filter By:</h3>
                         <h5>Name:</h5>
-                        <input className={d.inputSearch} autoComplete='off' name='search' type="text" placeholder="Ex: Fox" onChange={this.searchDog}/><br></br>
+                        <input className={d.inputSearch} autoComplete='off' id='search' name='search' type="text" placeholder="Ex: Fox" onChange={this.searchDog}/><br></br>
                         <h5>Temperaments:</h5>
                         <select className={d.inputSearch} id='temps' onChange={this.filterTemps} defaultValue={'default'}>
                             <option value='default' disabled>Select</option>
@@ -342,7 +442,7 @@ export class Cards extends React.Component {
                 <div>
                     {this.props.dogs.length && <div className={d.pageDiv}>
                         {this.props.currentPage > 0 && <div className={d.dogsButtonPrev}><button name='prev' className={d.dogsButton} onClick={this.changePage}>Prev</button></div>}
-                        {this.state.dogsPages?.map((dog, i) => <p className={i === this.props.currentPage ? d.pageButtonActive : d.pageButton} key={i}>{i+1}</p>)}
+                        {this.state.dogsPages?.map((dog, i) => <button onClick={(e) => this.setPagination(e, i)} className={i === this.props.currentPage ? d.pageButtonActive : d.pageButton} key={i}>{i+1}</button>)}
                         {this.props.currentPage + 1 < this.state.dogsPages.length && <div className={d.dogsButtonNext}><button name='next' className={d.dogsButton} onClick={this.changePage}>Next</button></div>}
                     </div>}
                     <div className={d.dogCards}>
@@ -353,7 +453,8 @@ export class Cards extends React.Component {
                                 <p>Woof! {this.state.error}</p>
                             </div>
                         </div> 
-                        : this.props.dogs.length && this.props.dogs?.slice(this.state.fstIndex,this.state.sndIndex).map(d => {
+                        :
+                        this.props.dogs.length && this.props.dogs?.slice(this.state.fstIndex,this.state.sndIndex).map(d => {
                             return (
                                 <Dog
                                 id = {d.id}

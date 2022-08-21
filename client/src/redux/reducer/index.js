@@ -127,6 +127,7 @@ const rootReducer = (state=initialState, action) => {
                 if(!filtered.length) throw new Error("There is'n any created dog")
                 return {
                     ...state,
+                    currentPage: 0,
                     dogs: filtered
                 }
             } else if (action.payload === 'API'){ 
@@ -134,10 +135,12 @@ const rootReducer = (state=initialState, action) => {
                 if(!filtered2.length) throw new Error("There is'n any pre-charged dog")
                 return {
                     ...state,
+                    currentPage: 0,
                     dogs: filtered2
                 }
-            } else {
-                break;
+            } 
+            return {
+                ...state,
             }
         case CLEAR_DOG:
             return {
